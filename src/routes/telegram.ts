@@ -133,7 +133,7 @@ async function handleCallbackQuery(update: TelegramUpdate): Promise<void> {
 /**
  * /start command
  */
-async function handleStart(chatId: number, firstName: string): Promise<void> {
+async function handleStart(chatId: number, _firstName: string): Promise<void> {
   const welcomeText = `👋 Welcome to **Settl X**\\n\\n` +
     `I can help you track wallet addresses across multiple blockchains and receive alerts for new transactions.\\n\\n` +
     `**Supported Networks:**\\n` +

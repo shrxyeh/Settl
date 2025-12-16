@@ -183,7 +183,6 @@ export class EVMService {
   parseTransaction(targetAddress: string, tx: EVMTransaction, chain: Chain): TransactionActivity {
     const normalizedTarget = this.normalizeAddress(targetAddress);
     const fromAddr = tx.from ? this.normalizeAddress(tx.from) : '';
-    const toAddr = tx.to ? this.normalizeAddress(tx.to) : '';
 
     const direction = fromAddr === normalizedTarget ? 'out' : 'in';
     const amount = this.weiToEth(tx.value);
