@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int               @id @default(autoincrement())
+  telegramUserId   String            @unique @map("telegram_user_id")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  trackedAddresses TrackedAddress[]
+
+  @@map("users")
+}
+
+model TrackedAddress {
+  id             Int          @id @default(autoincrement())
+  userId         Int          @map("user_id")
+  chain          String       // eth, base, avax, sol
+  address        String
+  label          String
+  minAmount      Float        @default(0) @map("min_amount")
+  isActive       Boolean      @default(true) @map("is_active")
+  lastSeenCursor String?      @map("last_seen_cursor") // block number for EVM, signature for Solana
+  createdAt      DateTime     @default(now()) @map("created_at")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alertEvents    AlertEvent[]
+
+  @@index([userId])
+  @@index([chain, address])
+  @@map("tracked_addresses")
+}
+
+model AlertEvent {
+  id                 Int            @id @default(autoincrement())
+  trackedAddressId   Int            @map("tracked_address_id")
+  chain              String
+  txHashOrSig        String         @map("tx_hash_or_sig")
+  timestamp          DateTime
+  direction          String         // in, out
+  amount             Float
+  asset              String
+  sentToTelegram     Boolean        @default(false) @map("sent_to_telegram")
+  trackedAddress     TrackedAddress @relation(fields: [trackedAddressId], references: [id], onDelete: Cascade)
+
+  @@unique([chain, txHashOrSig, trackedAddressId])
+  @@index([trackedAddressId])
+  @@map("alert_events")
+}
+
+model ChainCursor {
+  id             Int      @id @default(autoincrement())
+  chain          String   @unique
+  lastBlockNumber String  @map("last_block_number")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("chain_cursors")
+}
